@@ -1,0 +1,28 @@
+---
+- name: Actualizar Windows y guardar registro en C:
+  hosts: windows
+  gather_facts: yes
+  tasks:
+    - name: Actualizar Windows
+      win_updates:
+        state: installed
+        category_names:
+          - SecurityUpdates
+          - UpdateRollups
+          - CriticalUpdates
+          - DefinitionUpdates
+      register: windows_updates
+
+    - name: Guardar registro en C:
+      win_reg_stat:
+        path: "C:registro.txt"  # Ruta al archivo de registro en C:
+        name: ""
+      register: registry_state
+
+    - name: Mostrar información sobre las actualizaciones
+      debug:
+        var: windows_updates
+
+    - name: Mostrar información sobre el registro guardado
+      debug:
+        var: registry_state
