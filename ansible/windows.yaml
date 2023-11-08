@@ -1,6 +1,6 @@
 ---
 - name: Actualizar Windows y guardar registro en C:
-  hosts: windows
+  hosts: servers
   gather_facts: yes
   tasks:
     - name: Actualizar Windows
