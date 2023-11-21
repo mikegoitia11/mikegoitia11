@@ -1,5 +1,5 @@
 ---
-- hosts: Servers
+- hosts: vd
   gather_facts: true
   tasks:
     - name: Obtener la fecha de inicio
