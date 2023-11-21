@@ -1,28 +1,35 @@
 ---
-- name: Actualizar Windows y guardar registro en C
-  hosts: Servers
-  gather_facts: yes
+- hosts: tus_servidores_windows
+  gather_facts: true
   tasks:
-    - name: Actualizar Windows
+    - name: Obtener la fecha de inicio
+      set_fact:
+        start_time: "{{ ansible_date_time.epoch }}"
+
+    - name: Obtener actualizaciones pendientes
       win_updates:
         state: installed
         category_names:
           - SecurityUpdates
           - UpdateRollups
-          - CriticalUpdates
-          - DefinitionUpdates
-      register: windows_updates
+        register: updates_result
 
-    - name: Guardar registro en C
-      win_reg_stat:
-        path: "C:registro.txt"  # Ruta al archivo de registro en C:
-        name: ""
-      register: registry_state
+    - name: Crear archivo de actualizaciones realizadas
+      copy:
+        content: "{{ updates_result.updates | to_nice_json }}\n"
+        dest: "{{ ansible_env.HOME }}/actualizaciones_realizadas.json"
+      when: updates_result.updates is defined and updates_result.updates | length > 0
 
-    - name: Mostrar información sobre las actualizaciones
-      debug:
-        var: windows_updates
+    - name: Obtener la fecha de finalización
+      set_fact:
+        end_time: "{{ ansible_date_time.epoch }}"
 
-    - name: Mostrar información sobre el registro guardado
-      debug:
-        var: registry_state
+    - name: Calcular la duración de la actualización
+      set_fact:
+        duration_seconds: "{{ end_time | int - start_time | int }}"
+        duration_formatted: "{{ duration_seconds | to_nice_duration }}"
+
+    - name: Guardar la duración en un archivo
+      copy:
+        content: "{{ duration_formatted }}\n"
+        dest: "{{ ansible_env.HOME }}/duracion_actualizacion.txt"
