@@ -1,5 +1,5 @@
 ---
-- hosts: tus_servidores_windows
+- hosts: Servers
   gather_facts: true
   tasks:
     - name: Obtener la fecha de inicio
